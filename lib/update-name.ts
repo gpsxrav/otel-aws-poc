@@ -5,6 +5,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda'
 import { Architecture, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { AttributeType, BillingMode, Table } from 'aws-cdk-lib/aws-dynamodb';
 import { Effect, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Duration } from 'aws-cdk-lib';
 
 export class updateName extends Construct {
   constructor(scope: Construct, id: string) {
@@ -13,7 +14,8 @@ export class updateName extends Construct {
     const updateNameFunction = new NodejsFunction(this, 'function', {
       runtime: Runtime.NODEJS_16_X,
       architecture: Architecture.ARM_64,
-      memorySize: 1024,
+      memorySize: 10240,
+      timeout: Duration.seconds(20),
       environment: {
         // Required for layer
         AWS_LAMBDA_EXEC_WRAPPER: '/opt/otel-handler',
@@ -22,6 +24,7 @@ export class updateName extends Construct {
         // Required to for HNY
         OTEL_PROPAGATORS: 'tracecontext',
         OTEL_SERVICE_NAME: 'demo-example-service',
+        OTEL_TRACES_SAMPLER: 'always_on',
 
         // Standard environment variable
         DDB_TABLE_NAME: 'sre-otel-poc-dev'

@@ -2,6 +2,12 @@ import { Context, APIGatewayProxyResult, APIGatewayEvent } from 'aws-lambda';
 import { DynamoDBDocumentClient, GetCommand, PutCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import axios from 'axios';
+import {W3CTraceContextPropagator} from "@opentelemetry/core";
+import {
+    defaultTextMapGetter,
+    defaultTextMapSetter,
+    ROOT_CONTEXT,
+} from "@opentelemetry/api";
 
 // Must use require as we are using the `opentelemetry` provided by the layer
 //  Require causes 'any', we can add the types back via import type
@@ -65,18 +71,18 @@ const getCount = spanify(async function getCounter({ span }: { span: Span }): Pr
 
 //pradeep - test for API Call
 
-const makeAPIcall = spanify(async function makeAPIcall({ myname, span }: { myname: string, span: Span }): Promise<string> {
+const makeAPIcall = async function makeAPIcall(myname: string, carrier: any, span: Span): Promise<string> {
 
   let endpoint = "https://gzlr12mgmi.execute-api.us-west-2.amazonaws.com/prod/";
   let request = {
     name: myname
   }
 
-  let response = await invoke(request, endpoint);
+  let response = await invoke(request, endpoint, carrier);
   console.log(response);
   span.setAttributes({ myname })
   return myname
-})
+}
 
 
 const incrementPersistCount = spanify(async function saveCount({ currentCount, span }: { currentCount: number, span: Span }): Promise<number> {
@@ -100,38 +106,42 @@ const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGat
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
   console.log(`Context: ${JSON.stringify(context, null, 2)}`);
 
-  // Requires 'root: true', to override the otel trace from the lambda service (avoids missing span problem in HNY)
-  // Also an example of usage of the 'startActiveSpan'
-  return tracer.startActiveSpan('handler', { root: true }, async (span: any) => {
-    const currentCount = await getCount({})
+  const span: Span = tracer.startSpan('main');
+  const propagator = new W3CTraceContextPropagator();
+  let carrier = {};
+  propagator.inject(
+      trace.setSpanContext(ROOT_CONTEXT, span.spanContext()),
+      carrier,
+      defaultTextMapSetter
+  );  
 
-    const newCount = await incrementPersistCount({ currentCount })
-
+  console.log("carrier", carrier); 
+  
     const response = {
       statusCode: 200,
       body: JSON.stringify({
-        newCount,
+        'msg':'success'
       }),
     };
 
     let myname = 'Hari';
-    const apitest = await makeAPIcall({ myname })
-
+    const apitest = await makeAPIcall( myname, carrier, span )
     span.end()
+    return response;
 
-    return response
-  })
 };
 
 async function invoke(
   requestBody: any,
-  endpoint: string
+  endpoint: string,
+  carrier: any
 ): Promise<any> {
   let response;
   try {
     response = await axios.post(endpoint, requestBody, {
       headers: {
         "Content-Type": "application/json",
+        "carrier": carrier
       },
     });
   } catch (e) {
