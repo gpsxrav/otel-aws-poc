@@ -1,6 +1,6 @@
 **Set-up demo project**
 
-1. Copy + Paste `collector-template.yaml` to `collector.yaml` - Pradeep - Done 
+1. Copy + Paste `collector-template.yaml` to `collector.yaml` in the same path where you update the honeycomb configs - Pradeep - Done 
 1. Replace `xxx` in `collector.yaml` to your honeycomb keys - Pradeep - Done 
 1. NOTE: Must use us-west-2 as this is where the lambda layer is  - Pradeep - Done 
 1. `npm install` -- Installs dependencies
@@ -8,13 +8,6 @@
 1. Hit the URL that CDK outputs from the deployment. You should see a counter
 1. Review honeycomb, your traces should be present
 
-In the sandbox, you can see the https://ml2xigrkr9.execute-api.us-west-2.amazonaws.com/prod/
-
-This uses the API spun from other stack
-SRE-AutomationCDK-TS-OTEL4.urlsreloginvocationpy = https://raum26pihb.execute-api.us-west-2.amazonaws.com/otel4/logInvocationPyApiotel4
-SRE-AutomationCDK-TS-OTEL4.urlsreupdatenamejava = https://raum26pihb.execute-api.us-west-2.amazonaws.com/otel4/updateNameJavaApiotel4
-SRE-AutomationCDK-TS-OTEL4.urlsreupdatenameotel4 = https://raum26pihb.execute-api.us-west-2.amazonaws.com/otel4/updateNameTSApi
-SRE-AutomationCDK-TS-OTEL4.urlsreupdatenamewrapperotel4 = https://raum26pihb.execute-api.us-west-2.amazonaws.com/otel4/updateNameWrapperTSApi
 
 **How to use this demo**
 
