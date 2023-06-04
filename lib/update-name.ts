@@ -11,6 +11,15 @@ export class updateName extends Construct {
   constructor(scope: Construct, id: string) {
     super(scope, id);
 
+    const table = new Table(scope, 'example-table-two', {
+      billingMode: BillingMode.PAY_PER_REQUEST,
+      partitionKey: {
+        name: 'id',
+        type: AttributeType.STRING
+      },
+      sortKey: { name: 'name', type: AttributeType.NUMBER },
+    })
+
     const updateNameFunction = new NodejsFunction(this, 'function', {
       runtime: Runtime.NODEJS_16_X,
       architecture: Architecture.ARM_64,
@@ -27,7 +36,7 @@ export class updateName extends Construct {
         OTEL_TRACES_SAMPLER: 'always_on',
 
         // Standard environment variable
-        DDB_TABLE_NAME: 'sre-otel-poc-dev'
+        DDB_TABLE_NAME: table.tableName
       },
       layers: [
         // From https://github.com/aws-observability/aws-otel-lambda
@@ -76,14 +85,8 @@ export class updateName extends Construct {
       },
     });
 
-    updateNameFunction.addToRolePolicy(new PolicyStatement({
-      effect: Effect.ALLOW,
-      actions: [
-        'dynamodb:PutItem',
-        ],
-      resources: [
-      'arn:aws:dynamodb:us-west-2:160534020129:table/sre*'],
-    }));
+
+    table.grantReadWriteData(updateNameFunction)
 
     new LambdaRestApi(this, 'apigw-1', {
       handler: updateNameFunction,
