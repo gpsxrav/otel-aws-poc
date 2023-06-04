@@ -73,7 +73,7 @@ const getCount = spanify(async function getCounter({ span }: { span: Span }): Pr
 
 const makeAPIcall = async function makeAPIcall(myname: string, carrier: any, span: Span): Promise<string> {
 
-  let endpoint = "https://gzlr12mgmi.execute-api.us-west-2.amazonaws.com/prod/";
+  let endpoint = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
   let request = {
     name: myname
   }
