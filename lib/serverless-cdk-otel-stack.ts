@@ -1,14 +1,13 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { HelloWorld } from './hello-world';
-import { updateName } from './update-name';
+import { lambdapingcheck } from './lambda-ping-check';
 
-export class ServerlessCdkOtelStack extends cdk.Stack {
+export class Pingtest extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    new HelloWorld(this, 'hello-world');
-    new updateName(this, 'update-name')
+    new lambdapingcheck(this, 'lambda-ping-check');
+  
 
   }
 }
