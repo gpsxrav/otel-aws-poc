@@ -9,7 +9,7 @@ exporters::
     endpoint: 
   otlp/tracesapi.honeycomb.io:443
     headers:
-      'x-honeycomb-team': 'XXXXXXXXXXXXXXXXXXXXXXX'
+      'x-honeycomb-team': 'ehIxS5hD83djvud655MwlC'
 
   logging:
     loglevel: debug
