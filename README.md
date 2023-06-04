@@ -1,6 +1,6 @@
 **Set-up demo project**
 
-1. Copy + Paste `collector-template.yaml` to `collector.yaml` in the same path where you update the honeycomb configs - Pradeep - Done 
+
 1. Replace `xxx` in `collector.yaml` to your honeycomb keys - Pradeep - Done 
 1. NOTE: Must use us-west-2 as this is where the lambda layer is  - Pradeep - Done 
 1. `npm install` -- Installs dependencies
