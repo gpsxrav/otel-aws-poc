@@ -15,9 +15,9 @@ export class updateName extends Construct {
       billingMode: BillingMode.PAY_PER_REQUEST,
       partitionKey: {
         name: 'id',
-        type: AttributeType.STRING
+        type: AttributeType.NUMBER
       },
-      sortKey: { name: 'name', type: AttributeType.NUMBER },
+      sortKey: { name: 'name', type: AttributeType.STRING },
     })
 
     const updateNameFunction = new NodejsFunction(this, 'function', {

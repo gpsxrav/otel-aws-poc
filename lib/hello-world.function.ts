@@ -7,6 +7,7 @@ import {
     defaultTextMapGetter,
     defaultTextMapSetter,
     ROOT_CONTEXT,
+    context as otelcontext
 } from "@opentelemetry/api";
 
 // Must use require as we are using the `opentelemetry` provided by the layer
@@ -15,9 +16,6 @@ const { trace, SpanStatusCode } = require('@opentelemetry/api')
 import type { Span, SpanOptions } from '@opentelemetry/api'
 
 const tracer = trace.getTracer('my-service-tracer')
-
-const ddbClient = new DynamoDBClient({});
-const ddbDocClient = DynamoDBDocumentClient.from(ddbClient);
 
 // Acts like a decorator, helps reduce nesting that comes from 'startActiveSpan'
 function spanify<F extends (args: Parameters<F>[0]) => ReturnType<F>>(
@@ -52,28 +50,11 @@ function spanify<F extends (args: Parameters<F>[0]) => ReturnType<F>>(
   }
 }
 
-const COUNTER_KEY = 'counter'
-
-const getCount = spanify(async function getCounter({ span }: { span: Span }): Promise<number> {
-  const data = await ddbDocClient.send(new GetCommand({
-    TableName: process.env.DDB_TABLE_NAME,
-    Key: {
-      id: COUNTER_KEY
-    }
-  }));
-
-  const currentCount = data?.Item?.count || 0
-
-  span.setAttributes({ currentCount })
-
-  return currentCount
-})
-
 //pradeep - test for API Call
 
 const makeAPIcall = async function makeAPIcall(myname: string, carrier: any, span: Span): Promise<string> {
 
-  let endpoint = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+  let endpoint = "https://gzlr12mgmi.execute-api.us-west-2.amazonaws.com/prod/";
   let request = {
     name: myname
   }
@@ -85,50 +66,41 @@ const makeAPIcall = async function makeAPIcall(myname: string, carrier: any, spa
 }
 
 
-const incrementPersistCount = spanify(async function saveCount({ currentCount, span }: { currentCount: number, span: Span }): Promise<number> {
-  const newCount = currentCount + 1
-
-  span.setAttributes({ newCount })
-
-  await ddbDocClient.send(new PutCommand({
-    TableName: process.env.DDB_TABLE_NAME,
-    Item: {
-      id: COUNTER_KEY,
-      count: newCount
-    }
-  }));
-
-  return newCount
-})
-
-
 const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
   console.log(`Context: ${JSON.stringify(context, null, 2)}`);
 
-  const span: Span = tracer.startSpan('main');
+  const response = {
+    statusCode: 200,
+    body: JSON.stringify({
+      'msg':'success'
+    }),
+  };
+
+ 
+  tracer.startActiveSpan('parent', {root: true}, async (pspan: Span) => {
+
+  const ctx = trace.setSpan(
+    otelcontext.active(),
+    pspan
+  );
+
+  const span: Span = tracer.startSpan('main', { root: false }, ctx);
   const propagator = new W3CTraceContextPropagator();
   let carrier = {};
   propagator.inject(
-      trace.setSpanContext(ROOT_CONTEXT, span.spanContext()),
+      trace.setSpanContext(ROOT_CONTEXT, pspan.spanContext()),
       carrier,
       defaultTextMapSetter
   );  
-
   console.log("carrier", carrier); 
-  
-    const response = {
-      statusCode: 200,
-      body: JSON.stringify({
-        'msg':'success'
-      }),
-    };
+  let myname = 'Hari';
+  const apitest = await makeAPIcall( myname, carrier, span )
+  span.end()
+  pspan.end();
+  });
 
-    let myname = 'Hari';
-    const apitest = await makeAPIcall( myname, carrier, span )
-    span.end()
-    return response;
-
+  return response;
 };
 
 async function invoke(
