@@ -54,7 +54,7 @@ function spanify<F extends (args: Parameters<F>[0]) => ReturnType<F>>(
 
 const makeAPIcall = async function makeAPIcall(myname: string, carrier: any, span: Span): Promise<string> {
 
-  let endpoint = "https://gzlr12mgmi.execute-api.us-west-2.amazonaws.com/prod/";
+  let endpoint = "https://ldky8xfdil.execute-api.us-west-2.amazonaws.com/prod/";
   let request = {
     name: myname
   }
