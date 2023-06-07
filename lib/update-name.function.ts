@@ -6,7 +6,7 @@ import axios from 'axios';
 // Must use require as we are using the `opentelemetry` provided by the layer
 //  Require causes 'any', we can add the types back via import type
 const { context, propagation, trace, SpanStatusCode } = require('@opentelemetry/api')
-import type { Span, SpanOptions } from '@opentelemetry/api'
+import { Span, SpanOptions } from '@opentelemetry/api'
 import { CodeDeployServerDeployAction } from 'aws-cdk-lib/aws-codepipeline-actions';
 import {W3CTraceContextPropagator} from "@opentelemetry/core";
 import {
@@ -46,6 +46,11 @@ const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGat
   let eventJson = JSON.parse(JSON.stringify(event, null, 2));
   let reqContextJson = JSON.parse(JSON.stringify(context, null, 2));
 
+  let activeSpan: Span = trace.getActiveSpan()
+  let activeSpanCtx = activeSpan.spanContext()
+  console.log(activeSpan)
+  console.log(activeSpanCtx)
+
   if (!eventJson.body) {
         return {
             statusCode: 500,
@@ -68,7 +73,7 @@ const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGat
         'msg': 'name update in db with ID - '+ newId,
       }),
     };
-
+    
     return response
 
 };

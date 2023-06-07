@@ -31,6 +31,11 @@ const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGat
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
   console.log(`Context: ${JSON.stringify(context, null, 2)}`);
 
+  let activeSpan: Span = trace.getActiveSpan()
+  let activeSpanCtx = activeSpan.spanContext()
+  console.log(activeSpan)
+  console.log(activeSpanCtx)
+  
   const response = {
       statusCode: 200,
       body: JSON.stringify({
@@ -40,6 +45,7 @@ const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGat
 
   let myname = 'Hari';
   const apitest = await makeAPIcall( myname )
+  
   return response;
 
 };
