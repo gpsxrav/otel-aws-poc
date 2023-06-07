@@ -7,9 +7,10 @@ import {
     defaultTextMapGetter,
     defaultTextMapSetter,
     ROOT_CONTEXT,
+    SpanContext,
 } from "@opentelemetry/api";
 
-const { trace, SpanStatusCode } = require('@opentelemetry/api')
+const { trace, SpanStatusCode, SpanContext } = require('@opentelemetry/api')
 import type { Span, SpanOptions } from '@opentelemetry/api'
 
 const tracer = trace.getTracer('my-service-tracer')
@@ -31,11 +32,16 @@ const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGat
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
   console.log(`Context: ${JSON.stringify(context, null, 2)}`);
 
+  let eventJson = JSON.parse(JSON.stringify(event, null, 2));
+
   let activeSpan: Span = trace.getActiveSpan()
   let activeSpanCtx = activeSpan.spanContext()
   console.log(activeSpan)
   console.log(activeSpanCtx)
-  
+
+  activeSpan.setAttribute("name", "rootSpan")
+  activeSpan.setAttribute("root", true)
+
   const response = {
       statusCode: 200,
       body: JSON.stringify({
