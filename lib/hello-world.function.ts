@@ -10,7 +10,7 @@ import {
     SpanContext,
 } from "@opentelemetry/api";
 
-const { trace, SpanStatusCode, SpanContext } = require('@opentelemetry/api')
+const { trace, SpanStatusCode, propagation, context } = require('@opentelemetry/api')
 import type { Span, SpanOptions } from '@opentelemetry/api'
 
 const tracer = trace.getTracer('my-service-tracer')
@@ -28,9 +28,9 @@ const makeAPIcall = async function makeAPIcall(myname: string): Promise<string> 
 }
 
 
-const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGatewayProxyResult> => {
+const handler = async (event: APIGatewayEvent, rcontext: Context): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
-  console.log(`Context: ${JSON.stringify(context, null, 2)}`);
+  console.log(`Context: ${JSON.stringify(rcontext, null, 2)}`);
 
   let eventJson = JSON.parse(JSON.stringify(event, null, 2));
 
@@ -38,20 +38,28 @@ const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGat
   let activeSpanCtx = activeSpan.spanContext()
   console.log(activeSpan)
   console.log(activeSpanCtx)
+  activeSpan.setAttribute('name', 'api-1')
 
-  activeSpan.setAttribute("name", "rootSpan")
-  activeSpan.setAttribute("root", true)
-
+  const input = {};
+  let activeContext = propagation.extract(context.active(), input);
+  let span = tracer.startSpan('api-1',{attributes: {},},activeContext);
+  trace.setSpan(activeContext, span);
   const response = {
       statusCode: 200,
       body: JSON.stringify({
         'msg':'success'
       }),
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Api-Key,traceparent",
+        "Access-Control-Allow-Credentials": "true"
+    }
     };
 
   let myname = 'Hari';
   const apitest = await makeAPIcall( myname )
-  
+  span.end()
   return response;
 
 };

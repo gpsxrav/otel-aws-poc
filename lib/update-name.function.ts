@@ -50,7 +50,7 @@ const handler = async (event: APIGatewayEvent, context: Context): Promise<APIGat
   let activeSpanCtx = activeSpan.spanContext()
   console.log(activeSpan)
   console.log(activeSpanCtx)
-  
+  activeSpan.setAttribute('name', 'api-2')
 
   if (!eventJson.body) {
         return {

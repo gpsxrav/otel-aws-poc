@@ -30,7 +30,7 @@ export class HelloWorld extends Construct {
 
         // Required to for HNY
         OTEL_PROPAGATORS: 'tracecontext',
-        OTEL_SERVICE_NAME: 'demo-example-service',
+        OTEL_SERVICE_NAME: 'sre-frontend',
         OTEL_TRACES_SAMPLER: 'always_on',
 
         // Standard environment variable
