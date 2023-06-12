@@ -8,3 +8,10 @@ node_modules
 cdk.out
 
 collector.yaml
+java/target/java_cdk-0.1.jar
+java/target/original-java_cdk-0.1.jar
+java/target/classes/sre/csaa/components/Apiresponsecomponents.class
+java/target/classes/sre/csaa/otel/SampleLambda.class
+java/target/maven-archiver/pom.properties
+java/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+java/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst

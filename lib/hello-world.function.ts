@@ -17,7 +17,7 @@ const tracer = trace.getTracer('my-service-tracer')
 
 const makeAPIcall = async function makeAPIcall(myname: string): Promise<string> {
 
-  let endpoint = "https://ldky8xfdil.execute-api.us-west-2.amazonaws.com/prod/";
+  let endpoint = "https://tow8go7doh.execute-api.us-west-2.amazonaws.com/prod/";
   let request = {
     name: myname
   }
@@ -38,12 +38,9 @@ const handler = async (event: APIGatewayEvent, rcontext: Context): Promise<APIGa
   let activeSpanCtx = activeSpan.spanContext()
   console.log(activeSpan)
   console.log(activeSpanCtx)
-  activeSpan.setAttribute('name', 'api-1')
-
-  const input = {};
-  let activeContext = propagation.extract(context.active(), input);
-  let span = tracer.startSpan('api-1',{attributes: {},},activeContext);
-  trace.setSpan(activeContext, span);
+ 
+  let span = trace.getSpan(context.active())
+  span.setAttribute("name", "api-1")
   const response = {
       statusCode: 200,
       body: JSON.stringify({

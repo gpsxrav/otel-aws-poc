@@ -89,5 +89,42 @@ export class updateName extends Construct {
       handler: updateNameFunction,
     });
 
+    const samplJavaFunction = new lambda.Function(this, 'java-function', {
+      runtime: Runtime.JAVA_11,
+      architecture: Architecture.ARM_64,
+      description: `Generated on: ${new Date().toISOString()}`,
+      handler: 'sre.csaa.otel.SampleLambda::handleRequest',
+      code: lambda.Code.fromAsset('./java/target/java_cdk-0.1.jar',),
+      memorySize: 10240,
+      timeout: Duration.seconds(20),
+      environment: {
+        // Required for layer
+        AWS_LAMBDA_EXEC_WRAPPER: '/opt/otel-handler',
+        OPENTELEMETRY_COLLECTOR_CONFIG_FILE: '/var/task/collector.yaml',
+
+        // Required to for HNY
+        OTEL_PROPAGATORS: 'tracecontext',
+        OTEL_SERVICE_NAME: 'sre-frontend',
+        OTEL_TRACES_SAMPLER: 'always_on',
+
+        // Standard environment variable
+        DDB_TABLE_NAME: 'sre-otel-poc-dev'
+      },
+      layers: [
+        // From https://github.com/aws-observability/aws-otel-lambda
+        lambda.LayerVersion.fromLayerVersionArn(
+          this,
+          'otel-layer-1',
+          'arn:aws:lambda:us-west-2:901920570463:layer:aws-otel-nodejs-arm64-ver-1-12-0:1'
+        ),
+      ],
+      // Ignores AWS Lambda services' OTEL traces
+      tracing: lambda.Tracing.PASS_THROUGH,
+      
+      });
+
+      new LambdaRestApi(this, 'apigw-2', {
+        handler: samplJavaFunction,
+      });
   }
 }
