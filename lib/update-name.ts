@@ -106,7 +106,9 @@ export class updateName extends Construct {
         OTEL_PROPAGATORS: 'tracecontext',
         OTEL_SERVICE_NAME: 'sre-frontend',
         OTEL_TRACES_SAMPLER: 'always_on',
-
+        OTEL_INSTRUMENTATION_COMMON_DEFAULT_ENABLED: 'false',
+        OTEL_INSTRUMENTATION_AWS_LAMBDA_ENABLED: 'true',
+        OTEL_INSTRUMENTATION_AWS_SDK_ENABLED: 'true',
         // Standard environment variable
         DDB_TABLE_NAME: 'sre-otel-poc-dev'
       },
@@ -115,7 +117,7 @@ export class updateName extends Construct {
         lambda.LayerVersion.fromLayerVersionArn(
           this,
           'otel-layer-1',
-          'arn:aws:lambda:us-west-2:901920570463:layer:aws-otel-nodejs-arm64-ver-1-12-0:1'
+          'arn:aws:lambda:us-west-2:901920570463:layer:aws-otel-java-agent-arm64-ver-1-24-0:1'
         ),
       ],
       // Ignores AWS Lambda services' OTEL traces

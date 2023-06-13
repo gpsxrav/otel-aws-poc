@@ -12,12 +12,18 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import sre.csaa.components.Apiresponsecomponents;
+import io.opentelemetry.api.GlobalOpenTelemetry;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
 
-public class SampleLambda extends Apiresponsecomponents implements RequestHandler<Object, APIGatewayProxyResponseEvent>, Resource
+
+public class SampleLambda extends Apiresponsecomponents 
+implements RequestHandler<Object, APIGatewayProxyResponseEvent>, Resource
 {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
     JSONObject response;
     JSONObject appConfig;
+    Tracer tracer = GlobalOpenTelemetry.getTracer("my-service");
     
     public SampleLambda() {
         Core.getGlobalContext().register(this);
@@ -34,17 +40,20 @@ public class SampleLambda extends Apiresponsecomponents implements RequestHandle
     }
 
     @Override
-    public APIGatewayProxyResponseEvent handleRequest(Object event, Context context) {
+    public APIGatewayProxyResponseEvent handleRequest(Object event, com.amazonaws.services.lambda.runtime.Context context) {
         response = new JSONObject();
-        
         try {   
-            response.put("message", "Otel test");
+          
+           Span span = Span.current();
+           span.setAttribute("name", "java-lambda");
+           
+            response.put("msg", "Otel test");
         }catch(Exception e){
-            response.put("info", "");
+            response.put("info", "error");
             e.printStackTrace();
             return error(response, e);
         }
-        return ok(response);
+        return okCorsEnabledMethod(response);
     }
 
 }

@@ -30,7 +30,7 @@ public class Apiresponsecomponents {
         HashMap headers = new LinkedHashMap();
         headers.put("Access-Control-Allow-Origin", "*");
         headers.put("Access-Control-Allow-Methods","GET,POST,OPTIONS");
-        headers.put("Access-Control-Allow-Headers","Content-Type,Authorization,X-Api-Key");
+        headers.put("Access-Control-Allow-Headers","Content-Type,Authorization,X-Api-Key,traceparent");
         headers.put("Access-Control-Allow-Credentials","true");
         return new APIGatewayProxyResponseEvent()
                 .withStatusCode(200)
@@ -50,7 +50,13 @@ public class Apiresponsecomponents {
     protected APIGatewayProxyResponseEvent error(JSONObject response, Exception exc) {
         String exceptionString = String.format("error: %s: %s", exc.getMessage(), Arrays.toString(exc.getStackTrace()));
         response.put("Exception", exceptionString);
+        HashMap headers = new LinkedHashMap();
+        headers.put("Access-Control-Allow-Origin", "*");
+        headers.put("Access-Control-Allow-Methods","GET,POST,OPTIONS");
+        headers.put("Access-Control-Allow-Headers","Content-Type,Authorization,X-Api-Key,traceparent");
+        headers.put("Access-Control-Allow-Credentials","true");
         return new APIGatewayProxyResponseEvent()
+                .withHeaders(headers)
                 .withStatusCode(500)
                 .withBody(response.toString())
                 .withIsBase64Encoded(false);

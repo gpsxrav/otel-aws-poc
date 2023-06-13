@@ -31,32 +31,55 @@ const makeAPIcall = async function makeAPIcall(myname: string): Promise<string> 
 const handler = async (event: APIGatewayEvent, rcontext: Context): Promise<APIGatewayProxyResult> => {
   console.log(`Event: ${JSON.stringify(event, null, 2)}`);
   console.log(`Context: ${JSON.stringify(rcontext, null, 2)}`);
+  let corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Api-Key,traceparent",
+    "Access-Control-Allow-Credentials": "true"
+}
 
-  let eventJson = JSON.parse(JSON.stringify(event, null, 2));
+  if (!event.queryStringParameters?.name) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({
+        'msg':'bad request'
+      }),
+      headers: corsHeaders
+    };;
+  }
 
-  let activeSpan: Span = trace.getActiveSpan()
-  let activeSpanCtx = activeSpan.spanContext()
-  console.log(activeSpan)
-  console.log(activeSpanCtx)
+  // Print active span and its context to console for debugging
+
+  // let activeSpan: Span = trace.getActiveSpan()
+  // let activeSpanCtx = activeSpan.spanContext()
+  // console.log(activeSpan)
+  // console.log(activeSpanCtx)
  
-  let span = trace.getSpan(context.active())
+  // get span from active context
+  let span: Span = trace.getSpan(context.active())
+
+  // update the default span name with custom name
   span.setAttribute("name", "api-1")
+
+  let myname = event.queryStringParameters?.name;
+
+  // Add custom attributes to the span. 
+  // Note: value can be seen in traces with attribute key same as the varibale name. 
+  // in below case we can find the attribute named "myname" included under the span
+  span.setAttributes({myname})
   const response = {
       statusCode: 200,
       body: JSON.stringify({
         'msg':'success'
       }),
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Api-Key,traceparent",
-        "Access-Control-Allow-Credentials": "true"
-    }
+      headers: corsHeaders
     };
 
-  let myname = 'Hari';
+  
   const apitest = await makeAPIcall( myname )
-  span.end()
+
+  // Span end is not mandatory unless we wish to add more child spans under this active span
+  //span.end()
   return response;
 
 };
