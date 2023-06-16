@@ -99,7 +99,7 @@ export class updateName extends Construct {
       timeout: Duration.seconds(20),
       environment: {
         // Required for layer
-        AWS_LAMBDA_EXEC_WRAPPER: '/opt/otel-handler',
+        AWS_LAMBDA_EXEC_WRAPPER: '/opt/otel-proxy-handler',
         OPENTELEMETRY_COLLECTOR_CONFIG_FILE: '/var/task/collector.yaml',
 
         // Required to for HNY
@@ -109,6 +109,8 @@ export class updateName extends Construct {
         OTEL_INSTRUMENTATION_COMMON_DEFAULT_ENABLED: 'false',
         OTEL_INSTRUMENTATION_AWS_LAMBDA_ENABLED: 'true',
         OTEL_INSTRUMENTATION_AWS_SDK_ENABLED: 'true',
+        OTEL_INSTRUMENTATION_AWS_LAMBDA_HANDLER : 'sre.csaa.otel.SampleLambda:handleRequest',
+        OTEL_INSTRUMENTATION_AWS_LAMBDA_FLUSH_TIMEOUT: '30000',
         // Standard environment variable
         DDB_TABLE_NAME: 'sre-otel-poc-dev'
       },
@@ -116,8 +118,9 @@ export class updateName extends Construct {
         // From https://github.com/aws-observability/aws-otel-lambda
         lambda.LayerVersion.fromLayerVersionArn(
           this,
-          'otel-layer-1',
-          'arn:aws:lambda:us-west-2:901920570463:layer:aws-otel-java-agent-arm64-ver-1-24-0:1'
+          'otel-splunk-1',
+         // 'arn:aws:lambda:us-west-2:901920570463:layer:aws-otel-java-agent-arm64-ver-1-24-0:1'
+         'arn:aws:lambda:us-west-2:254067382080:layer:splunk-apm:78'
         ),
       ],
       // Ignores AWS Lambda services' OTEL traces

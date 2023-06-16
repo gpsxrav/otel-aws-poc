@@ -48,6 +48,11 @@
         </plugins>
     </build>
 	<dependencies>
+    <dependency>
+  <groupId>com.signalfx.public</groupId>
+  <artifactId>otel-java-lambda-wrapper</artifactId>
+  <version>0.0.13</version>
+</dependency>
     <!-- https://mvnrepository.com/artifact/io.opentelemetry/opentelemetry-api -->
 <dependency>
     <groupId>io.opentelemetry</groupId>
