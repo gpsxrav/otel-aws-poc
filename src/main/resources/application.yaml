@@ -1,0 +1,38 @@
+server:
+    port: 8090
+    servlet:
+        context-path: /env-dashboard
+spring:
+    application:
+        name: env-dashboard
+    output:
+        ansi:
+            enabled: DETECT
+    h1:
+        console:
+            enable: true
+    datasource:
+        url: jdbc:postgresql://localhost:5432/devops-center-dev
+        username: postgres
+        password: admin
+    jpa:
+        hibernate:
+            ddl-auto: create
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+tracing:
+    url: https://api.honeycomb.io:443/v1/traces/
+    authCode: ehIxS5hD83djvud655MwlC
+
+management:
+    tracing:
+        sampling:
+            probability: 1.0
+    endpoints:
+        web:
+            exposure:
+                include: "*"
+
+logging:
+    pattern:
+        level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/html-head :: html-head"></head>
+
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div>
+        <div th:replace="fragments/navbar :: navbar"></div>
+
+        <div class="container">
+            <br />
+            <h5 th:text="${environment}">E2E Environment 1</h5>
+            <br />
+
+            <ul class="nav nav-tabs">
+                <li class="nav-item" th:each="appGroup : ${appGroups}">
+                    <a class="nav-link" href="#"
+                        th:href="@{buildInfo(environment=${environment},appGroup=${appGroup})}"
+                       th:classappend="${appGroup} eq ${currentAppGroup}? 'active'"
+                       th:text="${appGroup}">PAS</a>
+                </li>
+            </ul>
+            <br />
+            <div class="row">
+                <div class="col-sm-4" th:each="info: ${buildInfo}" id="buildInfo">
+                    <div class="card mb-3 bg-success text-light">
+                        <div class="card-header">
+                            <span th:text="${info.appType}">PAS</span>
+                        </div>
+                        <div class="card-body text-sm">
+                            <h5 class="card-title" th:text="${info.appName}">PAS210</h5>
+                            <div>
+                                <span style="font-size: 1.1em;">
+                                    <i class="fas fa-cubes">&nbsp;</i>
+                                </span>
+                                <span th:text="${info.buildParamValue}">XSXSXSXSXS
+                                </span>
+                            </div>
+                            <div>
+                                <span style="font-size: 1.1em;">
+                                    <i class="fas fa-swatchbook">&nbsp;</i>
+                                </span>
+                                <span
+                                    th:text="${info.jobName}">PASQA210-Pipeline_DeployArtifacts</span>
+                            </div>
+                            <div>
+                                <span style="font-size: 1.1em;">
+                                    <i class="far fa-clock">&nbsp;</i>
+                                </span>
+                                <span  th:text="${info.jobPath}">Build #7 (Jul 6, 2020 4:53:24
+                                    PM)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div th:replace="fragments/foot-js-scripts :: foot-js-scripts"></div>
+    <script>
+            $(document).ready(function () {
+                var classes = ['bg-success', 'bg-warning', 'bg-info','bg-danger']
+                var i = 0;
+                $(".card").each(function () {
+                    $(this).removeClass(function (index, className) {
+                        return (className.match(/(^|\s)bg-\S+/g) || []).join(' ');
+                    });
+                    $(this).addClass(classes[i++]); // increment here
+                    $(this).addClass('text-light'); // increment here
+                    if (i == 4) i = 0; // reset the counter here
+                });
+            });
+        </script>
+</body>
+
+</html>

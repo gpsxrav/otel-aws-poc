@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="fragments/html-head :: html-head"></head>
+
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div>
+        <div th:replace="fragments/navbar :: navbar"></div>
+
+        <div class="container">
+            <div class="row mt-3" style="height: 8rem;">
+
+                <a class="col-sm-12 col-md mx-1 my-1 btn btn-success rounded text-md"
+                    href="buildInfo?environment=E2E%20Env%201" th:each="environment: ${environments}"
+                    th:href="@{buildInfo(environment=${environment})}">
+                    <h5 class="my-5 text-light" th:text="${environment}">E2E Environment 1</h5>
+                </a>
+            </div>
+        </div>
+
+    </div>
+    <div th:replace="fragments/foot-js-scripts :: foot-js-scripts"></div>
+    <script>
+            $(document).ready(function () {
+                var classes = ['bg-success', 'bg-warning', 'bg-info']
+                var i = 0;
+                $(".btn").each(function () {
+                    $(this).removeClass(function (index, className) {
+                        return (className.match(/(^|\s)btn-\S+/g) || []).join(' ');
+                    });
+                    $(this).addClass(classes[i++]); // increment here
+                    $(this).addClass('text-light'); // increment here
+                    if (i == 3) i = 0; // reset the counter here
+                });
+            });
+        </script>
+</body>
+
+</html>
