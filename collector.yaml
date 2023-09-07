@@ -6,10 +6,14 @@ receivers:
       http: 
 
 exporters:
-  otlp/traces:
+  otlp/traces/honeycomb:
     endpoint: api.honeycomb.io:443
     headers:
-      'x-honeycomb-team': xxx
+      'x-honeycomb-team': ehIxS5hD83djvud655MwlC
+  otlp/traces/aspecto:
+    endpoint: otelcol.aspecto.io:4317
+    headers:
+      Authorization: 54561ccd-d3ec-4d8e-9da1-c7cfd95a1088
 
   logging:
     loglevel: debug
@@ -20,4 +24,4 @@ service:
     traces:
       receivers: [otlp]
       processors: []
-      exporters: [otlp/traces]
+      exporters: [otlp/traces/honeycomb, otlp/traces/aspecto]
