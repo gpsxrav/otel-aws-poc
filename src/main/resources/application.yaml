@@ -22,7 +22,7 @@ spring:
 
 tracing:
     url: https://api.honeycomb.io:443/v1/traces/
-    authCode: ehIxS5hD83djvud655MwlC
+    authCode: 
 
 management:
     tracing:
